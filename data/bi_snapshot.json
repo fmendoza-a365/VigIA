@@ -1,0 +1,112 @@
+{
+  "generated_at": "2026-07-02T09:00:00-05:00",
+  "source": "Snapshot BI certificado - demo local",
+  "campaigns": [
+    {
+      "id": "bcp",
+      "name": "BCP",
+      "owner": "Gerencia Operaciones Banca",
+      "metrics": {
+        "sla": {
+          "label": "SLA contractual",
+          "actual": 92.1,
+          "target": 95.0,
+          "direction": "min",
+          "unit": "%"
+        },
+        "gross_margin": {
+          "label": "Margen bruto",
+          "actual": 18.3,
+          "target": 20.0,
+          "direction": "min",
+          "unit": "%"
+        },
+        "ebitda": {
+          "label": "EBITDA",
+          "actual": 11.2,
+          "target": 12.0,
+          "direction": "min",
+          "unit": "%"
+        },
+        "attrition": {
+          "label": "Rotacion",
+          "actual": 17.5,
+          "target": 15.0,
+          "direction": "max",
+          "unit": "%"
+        }
+      }
+    },
+    {
+      "id": "claro",
+      "name": "Claro",
+      "owner": "Gerencia Operaciones Telecom",
+      "metrics": {
+        "sla": {
+          "label": "SLA contractual",
+          "actual": 96.4,
+          "target": 95.0,
+          "direction": "min",
+          "unit": "%"
+        },
+        "gross_margin": {
+          "label": "Margen bruto",
+          "actual": 21.6,
+          "target": 20.0,
+          "direction": "min",
+          "unit": "%"
+        },
+        "ebitda": {
+          "label": "EBITDA",
+          "actual": 13.4,
+          "target": 12.0,
+          "direction": "min",
+          "unit": "%"
+        },
+        "attrition": {
+          "label": "Rotacion",
+          "actual": 13.8,
+          "target": 15.0,
+          "direction": "max",
+          "unit": "%"
+        }
+      }
+    },
+    {
+      "id": "entel",
+      "name": "Entel",
+      "owner": "Gerencia Operaciones Telecom",
+      "metrics": {
+        "sla": {
+          "label": "SLA contractual",
+          "actual": 94.2,
+          "target": 95.0,
+          "direction": "min",
+          "unit": "%"
+        },
+        "gross_margin": {
+          "label": "Margen bruto",
+          "actual": 19.9,
+          "target": 20.0,
+          "direction": "min",
+          "unit": "%"
+        },
+        "ebitda": {
+          "label": "EBITDA",
+          "actual": 12.7,
+          "target": 12.0,
+          "direction": "min",
+          "unit": "%"
+        },
+        "attrition": {
+          "label": "Rotacion",
+          "actual": 16.1,
+          "target": 15.0,
+          "direction": "max",
+          "unit": "%"
+        }
+      }
+    }
+  ]
+}
+
