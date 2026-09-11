@@ -12,28 +12,48 @@
           "actual": 92.1,
           "target": 95.0,
           "direction": "min",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 95.4 },
+            { "period": "2026-05", "actual": 93.7 },
+            { "period": "2026-06", "actual": 92.8 }
+          ]
         },
         "gross_margin": {
           "label": "Margen bruto",
           "actual": 18.3,
           "target": 20.0,
           "direction": "min",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 20.5 },
+            { "period": "2026-05", "actual": 19.4 },
+            { "period": "2026-06", "actual": 18.8 }
+          ]
         },
         "ebitda": {
           "label": "EBITDA",
           "actual": 11.2,
           "target": 12.0,
           "direction": "min",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 12.6 },
+            { "period": "2026-05", "actual": 11.9 },
+            { "period": "2026-06", "actual": 11.4 }
+          ]
         },
         "attrition": {
           "label": "Rotacion",
           "actual": 17.5,
           "target": 15.0,
           "direction": "max",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 14.4 },
+            { "period": "2026-05", "actual": 15.8 },
+            { "period": "2026-06", "actual": 16.7 }
+          ]
         }
       }
     },
@@ -47,28 +67,48 @@
           "actual": 96.4,
           "target": 95.0,
           "direction": "min",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 95.8 },
+            { "period": "2026-05", "actual": 96.0 },
+            { "period": "2026-06", "actual": 96.2 }
+          ]
         },
         "gross_margin": {
           "label": "Margen bruto",
           "actual": 21.6,
           "target": 20.0,
           "direction": "min",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 20.9 },
+            { "period": "2026-05", "actual": 21.3 },
+            { "period": "2026-06", "actual": 21.4 }
+          ]
         },
         "ebitda": {
           "label": "EBITDA",
           "actual": 13.4,
           "target": 12.0,
           "direction": "min",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 12.5 },
+            { "period": "2026-05", "actual": 12.9 },
+            { "period": "2026-06", "actual": 13.1 }
+          ]
         },
         "attrition": {
           "label": "Rotacion",
           "actual": 13.8,
           "target": 15.0,
           "direction": "max",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 14.6 },
+            { "period": "2026-05", "actual": 14.2 },
+            { "period": "2026-06", "actual": 14.0 }
+          ]
         }
       }
     },
@@ -82,31 +122,50 @@
           "actual": 94.2,
           "target": 95.0,
           "direction": "min",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 95.1 },
+            { "period": "2026-05", "actual": 94.8 },
+            { "period": "2026-06", "actual": 94.5 }
+          ]
         },
         "gross_margin": {
           "label": "Margen bruto",
           "actual": 19.9,
           "target": 20.0,
           "direction": "min",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 20.4 },
+            { "period": "2026-05", "actual": 20.1 },
+            { "period": "2026-06", "actual": 20.0 }
+          ]
         },
         "ebitda": {
           "label": "EBITDA",
           "actual": 12.7,
           "target": 12.0,
           "direction": "min",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 12.1 },
+            { "period": "2026-05", "actual": 12.4 },
+            { "period": "2026-06", "actual": 12.6 }
+          ]
         },
         "attrition": {
           "label": "Rotacion",
           "actual": 16.1,
           "target": 15.0,
           "direction": "max",
-          "unit": "%"
+          "unit": "%",
+          "history": [
+            { "period": "2026-04", "actual": 14.6 },
+            { "period": "2026-05", "actual": 15.2 },
+            { "period": "2026-06", "actual": 15.7 }
+          ]
         }
       }
     }
   ]
 }
-

@@ -2,7 +2,7 @@
 
 ## Fase 0 - Vertical slice local
 
-Estado actual de este repo.
+Completada.
 
 - Entrada manual de transcripcion.
 - Contraste contra snapshot BI local.
@@ -11,6 +11,9 @@ Estado actual de este repo.
 
 ## Fase 1 - MVP operativo
 
+- Conector HTTPS de solo lectura a `seguimiento_financiero`. **Completado**
+- Validacion, frescura y cache segura de datos. **Completado**
+- Perfiles CFO/COO y politica de intervencion. **Completado**
 - Persistencia en PostgreSQL.
 - Sesiones reales.
 - Carga de snapshots BI.
@@ -39,7 +42,7 @@ Estado actual de este repo.
 - Panel para facilitador.
 - Alertas silenciosas.
 - Boton humano de intervencion.
-- Voz activa solo para riesgos criticos.
+- Voz configurable para contradicciones verificadas o solo riesgos criticos. **Completado en modo local**
 
 ## Fase 5 - Produccion ejecutiva
 
@@ -49,4 +52,3 @@ Estado actual de este repo.
 - Monitoreo de costos.
 - Evaluacion de precision.
 - Runbooks de operacion.
-

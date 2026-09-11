@@ -9,9 +9,10 @@ Audio / texto
   -> STT streaming
   -> normalizacion de transcripcion
   -> detector rapido de afirmaciones
-  -> consulta a fuentes oficiales
+  -> conector seguimiento_financiero (lectura + validacion + frescura)
   -> motor de contraste
-  -> LLM redactor si corresponde
+  -> politica de intervencion (severidad + perfil + cooldown)
+  -> LLM redactor si corresponde, nunca decisor
   -> alerta, voz o minuta
 ```
 
@@ -43,10 +44,12 @@ Esta etapa debe ser deterministica o semi-deterministica, no solo LLM.
 
 Primera version:
 
-- snapshots BI certificados,
-- CSV/Excel controlados,
-- API interna,
-- PostgreSQL.
+- snapshot JSON certificado para demo,
+- API HTTPS de `seguimiento_financiero`,
+- cache de ultima lectura valida,
+- validacion de contrato y fecha de corte.
+
+VigIA opera en modo fail-closed: una fuente vencida o no verificable puede generar una advertencia en pantalla, pero nunca una correccion por voz.
 
 Version avanzada:
 
@@ -61,12 +64,22 @@ Reglas iniciales:
 
 - Si un KPI esta fuera de umbral y alguien lo presenta como normal, alertar.
 - Si el valor dicho difiere de la fuente oficial, alertar.
+- Si alguien reconoce correctamente un KPI fuera de meta, no interrumpir.
+- Si alguien presenta como critico un KPI que cumple, corregir con evidencia.
 - Si no hay evidencia suficiente, no corregir; pedir validacion.
 - Si el tema no es verificable, guardar silencio.
+
+La politica de voz agrega umbral configurable (`warning`, `critical` o `manual`) y cooldown para evitar repetir la misma interrupcion.
 
 ### 6. Capa generativa
 
 El LLM debe redactar alertas, minutas y resumenes. No debe ser la fuente de verdad.
+
+Los perfiles cambian el encuadre y la accion recomendada, no los datos:
+
+- CFO: margen, EBITDA, caja, forecast, costo y exposicion contractual.
+- COO: SLA, capacidad, productividad, dotacion, backlog y continuidad.
+- Mixto: conecta impacto financiero con ejecucion operativa.
 
 ## Stack recomendado
 
@@ -88,4 +101,3 @@ Go es bueno para concurrencia y servicios livianos, pero el trabajo principal aq
 ## Por que no C# como nucleo
 
 C# encaja mejor si Microsoft 365, Teams, Azure AD o SQL Server son requisitos centrales. Si el producto es independiente para el director, esa ventaja baja.
-

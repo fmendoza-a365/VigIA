@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts"],"version":"5.7.3"}
+{"root":["./src/App.tsx","./src/AppShell.tsx","./src/FinancialScopeSelector.tsx","./src/LandingPage.tsx","./src/LoginPage.tsx","./src/config.ts","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/jarvis/JarvisApp.tsx","./src/jarvis/main.tsx"],"version":"5.7.3"}

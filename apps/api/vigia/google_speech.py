@@ -25,15 +25,15 @@ def transcribe_webm_opus(
     audio_content: bytes,
     *,
     language_code: str = "es-PE",
-    model: str = "latest_long",
+    model: str = "default",
+    phrase_hints: Iterable[str] | None = None,
 ) -> tuple[str, float | None]:
     client = speech.SpeechClient()
-    config = speech.RecognitionConfig(
+    config = recognition_config(
         encoding=speech.RecognitionConfig.AudioEncoding.WEBM_OPUS,
-        sample_rate_hertz=48000,
         language_code=language_code,
         model=model,
-        enable_automatic_punctuation=True,
+        phrase_hints=phrase_hints,
     )
     audio = speech.RecognitionAudio(content=audio_content)
 
@@ -66,20 +66,47 @@ def encoding_from_mime_type(mime_type: str) -> speech.RecognitionConfig.AudioEnc
     return speech.RecognitionConfig.AudioEncoding.WEBM_OPUS
 
 
+def recognition_config(
+    *,
+    encoding: speech.RecognitionConfig.AudioEncoding,
+    language_code: str,
+    model: str,
+    phrase_hints: Iterable[str] | None = None,
+) -> speech.RecognitionConfig:
+    hints = list(dict.fromkeys(
+        phrase.strip()
+        for phrase in (phrase_hints or [])
+        if phrase and phrase.strip()
+    ))[:300]
+    try:
+        hint_boost = min(20.0, max(0.0, float(os.getenv("GOOGLE_SPEECH_HINT_BOOST", "16"))))
+    except ValueError:
+        hint_boost = 16.0
+
+    return speech.RecognitionConfig(
+        encoding=encoding,
+        sample_rate_hertz=48000,
+        language_code=language_code,
+        model=model,
+        enable_automatic_punctuation=True,
+        speech_contexts=[speech.SpeechContext(phrases=hints, boost=hint_boost)] if hints else [],
+    )
+
+
 def stream_transcribe_opus(
     audio_chunks: Iterable[bytes],
     *,
     mime_type: str,
     language_code: str = "es-PE",
-    model: str = "latest_long",
+    model: str = "default",
+    phrase_hints: Iterable[str] | None = None,
 ) -> Iterator[tuple[str, bool, float | None]]:
     client = speech.SpeechClient()
-    config = speech.RecognitionConfig(
+    config = recognition_config(
         encoding=encoding_from_mime_type(mime_type),
-        sample_rate_hertz=48000,
         language_code=language_code,
         model=model,
-        enable_automatic_punctuation=True,
+        phrase_hints=phrase_hints,
     )
     streaming_config = speech.StreamingRecognitionConfig(
         config=config,

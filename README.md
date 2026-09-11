@@ -11,8 +11,9 @@ VigIA no es un LLM que escucha todo y opina sobre todo. Es un pipeline donde cad
 - **Escucha** el audio de una reunion ejecutiva en tiempo real.
 - **Transcribe** la voz a texto con Google Cloud Speech-to-Text.
 - **Detecta** afirmaciones de negocio verificables (KPIs, metricas, campanias).
-- **Contrasta** los datos mencionados contra fuentes oficiales (BI snapshots).
+- **Contrasta** los datos mencionados contra `seguimiento_financiero` o un snapshot certificado.
 - **Alerta** con evidencia cuando hay contradicciones o riesgos disfrazados.
+- **Actúa** con perfil de Director Financiero, Director de Operaciones o perfil mixto.
 - **Genera** una minuta ejecutiva al cerrar la sesion.
 
 ---
@@ -42,8 +43,8 @@ Audio / texto
             │
             ▼
 ┌─────────────────────────┐
-│   Consulta a fuentes    │  BI snapshot local (JSON)
-│   oficiales             │  Futuro: PostgreSQL, APIs, warehouse
+│   Consulta a fuentes    │  seguimiento_financiero (HTTPS)
+│   oficiales             │  o snapshot local validado
 └───────────┬─────────────┘
             │
             ▼
@@ -85,12 +86,28 @@ Audio / texto
 | **Frontend** | React + Vite + TypeScript | Operativo |
 | **Backend** | Python + FastAPI | Operativo |
 | **STT** | Google Cloud Speech-to-Text (streaming) | Operativo |
-| **Datos iniciales** | JSON local (BI snapshot) | Operativo |
+| **Datos oficiales** | JSON validado o API HTTPS `seguimiento_financiero` | Operativo |
 | **Base de datos** | PostgreSQL + pgvector | Preparado (Docker Compose) |
 | **Cache** | Redis | Preparado (Docker Compose) |
 | **Audio realtime** | LiveKit / WebRTC | Planeado |
-| **IA generativa** | LLM intercambiable (redaccion) | Planeado |
+| **IA generativa** | Gemini como redactor, nunca como fuente de verdad | Operativo |
 | **Contenedores** | Docker Compose | Configurado |
+
+---
+
+## Experiencia web
+
+| Ruta | Uso |
+|---|---|
+| `/` | Landing publica y explicacion del producto |
+| `/login` | Acceso protegido al workspace |
+| `/app` | Flujo unico: preparacion, reunion en vivo, resumen y datos financieros |
+
+La interfaz es responsive, incluye navegacion lateral en escritorio y menu
+compacto en movil. La reunion se gestiona en tres pasos dentro del mismo modulo:
+preparar, ejecutar en vivo y revisar el resumen. El panel financiero muestra
+seis cuentas por pagina, permite buscar por nombre y conserva como unica fuente
+los datos reales de `seguimiento_financiero`.
 
 ---
 
@@ -101,18 +118,24 @@ vigia-pry/
 ├── apps/
 │   ├── api/                        Backend FastAPI
 │   │   ├── main.py                 Endpoints REST + WebSocket
+│   │   ├── vigia/auth.py           Sesion firmada y autenticacion
 │   │   ├── requirements.txt        Dependencias Python
 │   │   ├── vigia/
 │   │   │   ├── core.py             Motor de deteccion y contraste
+│   │   │   ├── financial_data.py   Conector y validacion de seguimiento_financiero
 │   │   │   └── google_speech.py    Integracion Google STT
 │   │   └── tests/
 │   │       └── test_core.py        Tests del motor de analisis
 │   └── web/                        Frontend React/Vite
 │       ├── src/
-│       │   ├── App.tsx             UI principal de la sala en vivo
+│       │   ├── App.tsx             Vision ejecutiva y datos oficiales
+│       │   ├── AppShell.tsx        Navegacion del workspace
+│       │   ├── LandingPage.tsx     Landing publica
+│       │   ├── LoginPage.tsx       Acceso al sistema
+│       │   ├── jarvis/             Sala de voz IA
+│       │   ├── design.css          Sistema visual responsive
 │       │   ├── types.ts            Tipos TypeScript
-│       │   ├── styles.css          Estilos
-│       │   └── main.tsx            Entry point
+│       │   └── main.tsx            Router y control de acceso
 │       ├── index.html
 │       ├── package.json
 │       ├── vite.config.ts
@@ -161,22 +184,58 @@ Para cambiar la URL del backend:
 VITE_API_BASE_URL=http://127.0.0.1:8080 npm run dev
 ```
 
-### 3. Docker (PostgreSQL + Redis)
+### 3. Docker (aplicación completa)
 
 ```bash
-docker compose up -d
+cp .env.example .env  # solo si todavía no existe .env
+docker compose up -d --build
+docker compose ps
 ```
 
 Esto levanta:
 
 | Servicio | Puerto | Imagen |
 |---|---|---|
+| VigIA web | 5173 | Nginx + frontend compilado |
+| VigIA API | 8080 | Python 3.12 + FastAPI |
 | PostgreSQL + pgvector | 5432 | `pgvector/pgvector:pg16` |
 | Redis | 6379 | `redis:7-alpine` |
+
+Abre `http://localhost:5173`; la landing es publica y el workspace solicita las
+credenciales configuradas en `.env`. La web sirve la API y el WebSocket de
+transcripcion por el mismo origen. Para
+revisar la ejecución o reconstruir después de un cambio:
+
+```bash
+docker compose logs -f api web
+docker compose up -d --build
+```
 
 ---
 
 ## API Endpoints
+
+Las rutas bajo `/api/*` requieren una sesion valida, excepto `/api/auth/*`.
+Configura las credenciales y la firma de sesion en `.env`:
+
+```bash
+VIGIA_ADMIN_USER=admin
+VIGIA_ADMIN_PASSWORD=cambia-esta-contrasena
+VIGIA_SESSION_SECRET=genera-un-secreto-aleatorio-largo
+VIGIA_SESSION_TTL_SECONDS=28800
+VIGIA_COOKIE_SECURE=false  # usa true al publicar exclusivamente con HTTPS
+```
+
+### Autenticacion
+
+```http
+POST /api/auth/login
+GET /api/auth/me
+POST /api/auth/logout
+```
+
+El login crea una cookie `HttpOnly`, firmada, con expiracion y `SameSite=Lax`.
+Los WebSockets de voz y transcripcion tambien validan la sesion.
 
 ### Health check
 
@@ -199,7 +258,7 @@ GET /api/speech-status
   "configured": true,
   "credentials_path": "/path/to/.secrets/google-speech.json",
   "language": "es-PE",
-  "model": "latest_long"
+  "model": "default"
 }
 ```
 
@@ -210,6 +269,15 @@ GET /api/bi-snapshot
 ```
 
 Devuelve el JSON completo con campanias, metricas, metas y valores actuales.
+
+### Estado de seguimiento_financiero
+
+```http
+GET /api/data-source/status
+POST /api/data-source/refresh
+```
+
+Informa proveedor, fuente, fecha de corte, antiguedad, disponibilidad y si la lectura es suficientemente vigente para corregir a un participante.
 
 ### Transcripcion individual (audio → texto)
 
@@ -332,8 +400,9 @@ El motor de analisis (`apps/api/vigia/core.py`) detecta afirmaciones verificable
 | Tipo | Severidad | Condicion |
 |---|---|---|
 | **Riesgo disfrazado** | `critical` | Dato presentado como "normal" pero BI muestra incumplimiento |
-| **Valor incorrecto** | `warning` | Valor mencionado difiere del valor real en BI (±1%) |
-| **Fuera de umbral** | `warning` | Metrica fuera de rango y no marcada como riesgo |
+| **Valor incorrecto** | `warning` | Valor mencionado supera la tolerancia del KPI (0.5 puntos por defecto para %) |
+| **Falso riesgo** | `warning` | Se declara como critico un KPI que si cumple |
+| **Reconocimiento correcto** | `info` | La persona reconoce correctamente una brecha; no se interrumpe |
 | **Sin contradiccion** | `silent` | No se genera alerta (silencio inteligente) |
 
 ---
@@ -347,11 +416,46 @@ El motor de analisis (`apps/api/vigia/core.py`) detecta afirmaciones verificable
 - Visualizacion de nivel de audio en vivo.
 - Transcripcion manual como alternativa.
 - Deteccion automatica de KPIs, campanias y valores mencionados.
-- Contraste contra snapshot BI local.
+- Deteccion de varias metricas y valores dentro de una misma frase.
+- Contraste contra snapshot local o API HTTPS de `seguimiento_financiero`.
+- Validacion estricta del contrato, control de frescura y cache de ultima lectura valida.
+- Contexto reciente de reunion para inferir la campania cuando la frase no la repite.
+- Modo directivo: confronta datos erroneos, promesas no respaldadas y afirmaciones generales de "todo bajo control".
+- Perfiles CFO, COO y mixto con acciones recomendadas distintas.
+- Umbral de voz configurable y cooldown de alertas repetidas.
+- Recomendaciones operativas, financieras y comerciales dentro de la intervencion.
+- Validacion de promesas contra historico minimo del snapshot BI.
 - Alertas criticas con evidencia citada.
-- Intervencion por voz (Text-to-Speech) para alertas criticas.
+- Intervencion por voz con Gemini 3.1 TTS preview y fallback latinoamericano de Google Cloud TTS.
 - Cierre de sesion con minuta ejecutiva automatica.
 - Panel de datos oficiales en tiempo real.
+- Landing publica, login y rutas privadas con sesion firmada.
+- Panel responsive con busqueda y paginacion de cuentas.
+- Sala de voz rediseñada con estados visuales y animaciones discretas.
+
+## Integracion con seguimiento_financiero
+
+Configura el acceso de solo lectura en `.env`:
+
+```bash
+VIGIA_DATA_PROVIDER=http
+SEGUIMIENTO_FINANCIERO_URL=http://host.docker.internal:3000/api/external
+SEGUIMIENTO_FINANCIERO_SENSITIVE_URL=http://app:3000/api/external  # opcional, solo red privada
+SEGUIMIENTO_FINANCIERO_API_KEY=api-key-de-solo-lectura
+VIGIA_ALLOW_INSECURE_DATA_URL=true  # solo para el enlace Docker local
+VIGIA_ALLOW_INSECURE_SENSITIVE_DATA_URL=true
+VIGIA_DATA_REFRESH_SECONDS=300
+VIGIA_DATA_MAX_AGE_SECONDS=900
+```
+
+El adaptador detecta el último período disponible y cubre todas las fuentes del
+contrato SIFO 1.1: cuentas, campañas, histórico, facturación, presupuesto,
+dotación, estructura, ratios, operación, asistencia, calidad, IFC y detalle
+individual de planilla. Los conjuntos grandes se consultan con paginación bajo
+demanda; la planilla individual exige el permiso `agents.read_sensitive` y no se
+incorpora al contexto ejecutivo general. Nunca se completan datos con métricas
+ficticias. El contrato JSON, reglas de seguridad y opciones de autenticación se detallan en
+[`docs/integration-seguimiento-financiero.md`](docs/integration-seguimiento-financiero.md).
 
 ---
 
@@ -372,8 +476,13 @@ Para activar la transcripcion real con Google Cloud:
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=.secrets/google-speech.json
 GOOGLE_SPEECH_LANGUAGE=es-PE
-GOOGLE_SPEECH_MODEL=latest_long
+GOOGLE_SPEECH_MODEL=default
+GOOGLE_SPEECH_HINT_BOOST=16
 ```
+
+VigIA envia a Speech-to-Text los nombres y metricas cargados desde
+`seguimiento_financiero` para mejorar el reconocimiento de cuentas como FUVEX,
+ENTEL CH o CLARO PERÚ.
 
 La carpeta `.secrets/` esta excluida de Git por `.gitignore`.
 
@@ -386,7 +495,8 @@ cd apps/api
 python3 -m unittest discover -s tests
 ```
 
-Los tests cubren el motor de deteccion y contraste sin dependencias externas.
+Los tests cubren el motor de deteccion, contraste, integracion de datos y
+autenticacion sin dependencias externas.
 
 ---
 
@@ -405,7 +515,7 @@ Los tests cubren el motor de deteccion y contraste sin dependencias externas.
 - Sesiones reales con historico.
 - Carga de snapshots BI.
 - Exportacion Markdown/PDF.
-- Autenticacion simple.
+- Gestion de usuarios y roles persistentes.
 
 ### Fase 2 — Audio real
 

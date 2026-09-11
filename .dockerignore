@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+.secrets
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.venv
+**/node_modules
+**/dist
+**/*.log
+apps/web/tsconfig.tsbuildinfo
